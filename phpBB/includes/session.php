@@ -608,6 +608,12 @@ class session
 		}
 		else
 		{
+			// Bot user, if they have a SID in the Request URI we need to get rid of it
+			// otherwise they'll index this page with the SID, duplicate content oh my!
+			if (isset($_GET['sid']))
+			{
+				redirect(build_url(array('sid')));
+			}
 			$this->data['session_last_visit'] = $this->time_now;
 		}
 
@@ -977,7 +983,7 @@ class session
 			}
 
 			// only called from CRON; should be a safe workaround until the infrastructure gets going
-			if (!class_exists('captcha_factory'))
+			if (!class_exists('phpbb_captcha_factory'))
 			{
 				include($phpbb_root_path . "includes/captcha/captcha_factory." . $phpEx);
 			}
