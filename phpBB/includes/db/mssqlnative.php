@@ -225,6 +225,7 @@ class dbal_mssqlnative extends dbal
 			'UID' => $this->user,
 			'PWD' => $sqlpassword
 		));
+		
 
 		return ($this->db_connect_id) ? $this->db_connect_id : $this->sql_error('');
 	}
@@ -502,6 +503,7 @@ class dbal_mssqlnative extends dbal
 	{
 		$errors = @sqlsrv_errors(SQLSRV_ERR_ERRORS);
 		$error_message = '';
+		$code = 0;
 
 		if ($errors != null)
 		{
@@ -509,6 +511,7 @@ class dbal_mssqlnative extends dbal
 			{
 				$error_message .= "SQLSTATE: ".$error[ 'SQLSTATE']."\n";
 				$error_message .= "code: ".$error[ 'code']."\n";
+				$code = $error['code'];
 				$error_message .= "message: ".$error[ 'message']."\n";
 			}
 			$this->last_error_result = $error_message;
@@ -518,7 +521,10 @@ class dbal_mssqlnative extends dbal
 		{
 			$error = (isset($this->last_error_result) && $this->last_error_result) ? $this->last_error_result : array();
 		}
-		return $error;
+		return array(				
+				'message'	=> $error,
+				'code'		=> $code
+		);
 	}
 
 	/**
