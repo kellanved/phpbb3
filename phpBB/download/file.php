@@ -15,6 +15,10 @@ define('IN_PHPBB', true);
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './../';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 
+if (defined('AZURE_INSTALL)'))
+{
+	include ($phpbb_root_path . 'includes/functions_azure');
+}
 
 // Thank you sun.
 if (isset($_SERVER['CONTENT_TYPE']))
@@ -308,7 +312,7 @@ else
 */
 function send_avatar_to_browser($file, $browser)
 {
-	global $config, $phpbb_root_path;
+	global $config, $phpbb_root_path, $phpEx;
 
 	$prefix = $config['avatar_salt'] . '_';
 	$image_dir = $config['avatar_path'];
@@ -325,7 +329,14 @@ function send_avatar_to_browser($file, $browser)
 		$image_dir = '';
 	}
 	$file_path = $phpbb_root_path . $image_dir . '/' . $prefix . $file;
-
+	if (defined('AZURE_INSTALL') && !@file_exists($file_path))
+	{
+		if (!function_exists('retrieve_file_azure'))
+		{
+			include ($phpbb_root_path . 'includes/functions_azure.' . $phpEx);
+		}
+		retrieve_file_azure($image_dir, $prefix . $file);
+	}
 	if ((@file_exists($file_path) && @is_readable($file_path)) && !headers_sent())
 	{
 		header('Pragma: public');
@@ -406,13 +417,24 @@ function wrap_img_in_html($src, $title)
 */
 function send_file_to_browser($attachment, $upload_dir, $category)
 {
-	global $user, $db, $config, $phpbb_root_path;
+	global $user, $db, $config, $phpbb_root_path, $phpEx;
 
 	$filename = $phpbb_root_path . $upload_dir . '/' . $attachment['physical_filename'];
 
 	if (!@file_exists($filename))
 	{
-		trigger_error($user->lang['ERROR_NO_ATTACHMENT'] . '<br /><br />' . sprintf($user->lang['FILE_NOT_FOUND_404'], $filename));
+		if (defined('AZURE_INSTALL') && !@file_exists($file_path))
+		{
+			if (!function_exists('retrieve_file_azure'))
+			{
+				include ($phpbb_root_path . 'includes/functions_azure.' . $phpEx);
+			}
+			retrieve_file_azure($upload_dir,  $attachment['physical_filename']);
+		}
+		else if (!@file_exists($filename))
+		{
+			trigger_error($user->lang['ERROR_NO_ATTACHMENT'] . '<br /><br />' . sprintf($user->lang['FILE_NOT_FOUND_404'], $filename));
+		}
 	}
 
 	// Correct the mime type - we force application/octetstream for all files, except images

@@ -269,7 +269,7 @@ class filespec
 	*/
 	function move_file($destination, $overwrite = false, $skip_image_check = false, $chmod = false)
 	{
-		global $user, $phpbb_root_path;
+		global $user, $phpbb_root_path, $phpEx;
 
 		if (sizeof($this->error))
 		{
@@ -327,6 +327,7 @@ class filespec
 							$this->error[] = sprintf($user->lang[$this->upload->error_prefix . 'GENERAL_UPLOAD_ERROR'], $this->destination_file);
 						}
 					}
+
 
 				break;
 
@@ -398,7 +399,17 @@ class filespec
 		$this->file_moved = true;
 		$this->additional_checks();
 		unset($this->upload);
+						// azure
+		if (defined('AZURE_INSTALL'))
+		{
+			if (!function_exists('store_file_azure'))
+			{
+				include ($phpbb_root_path . 'includes/functions_azure.' . $phpEx);
+			}
+			store_file_azure($this->destination_path, utf8_basename($this->realname));
+		}
 
+		
 		return true;
 	}
 
