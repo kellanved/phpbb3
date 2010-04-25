@@ -1,5 +1,5 @@
 #
-# $Id$
+# $Id: $
 #
 
 
@@ -462,6 +462,38 @@ BEGIN
 END;;
 
 
+# Table: 'phpbb_hooks'
+CREATE TABLE phpbb_hooks (
+	hook_id INTEGER NOT NULL,
+	hook_name VARCHAR(120) CHARACTER SET NONE DEFAULT '' NOT NULL
+);;
+
+ALTER TABLE phpbb_hooks ADD PRIMARY KEY (hook_id);;
+
+CREATE INDEX phpbb_hooks_hook_index ON phpbb_hooks(hook_name);;
+
+CREATE GENERATOR phpbb_hooks_gen;;
+SET GENERATOR phpbb_hooks_gen TO 0;;
+
+CREATE TRIGGER t_phpbb_hooks FOR phpbb_hooks
+BEFORE INSERT
+AS
+BEGIN
+	NEW.hook_id = GEN_ID(phpbb_hooks_gen, 1);
+END;;
+
+
+# Table: 'phpbb_hooks_mods'
+CREATE TABLE phpbb_hooks_mods (
+	hook_id INTEGER NOT NULL,
+	mod_id INTEGER NOT NULL,
+	priority INTEGER NOT NULL
+);;
+
+ALTER TABLE phpbb_hooks_mods ADD PRIMARY KEY (hook_id, mod_id);;
+
+CREATE INDEX phpbb_hooks_mods_lookup ON phpbb_hooks_mods(hook_id, priority);;
+
 # Table: 'phpbb_icons'
 CREATE TABLE phpbb_icons (
 	icons_id INTEGER NOT NULL,
@@ -557,6 +589,52 @@ CREATE TABLE phpbb_moderator_cache (
 
 CREATE INDEX phpbb_moderator_cache_disp_idx ON phpbb_moderator_cache(display_on_index);;
 CREATE INDEX phpbb_moderator_cache_forum_id ON phpbb_moderator_cache(forum_id);;
+
+# Table: 'phpbb_mods'
+CREATE TABLE phpbb_mods (
+	mod_id INTEGER NOT NULL,
+	mod_active INTEGER DEFAULT 1 NOT NULL,
+	mod_author VARCHAR(255) CHARACTER SET UTF8 DEFAULT '' NOT NULL COLLATE UNICODE,
+	mod_version VARCHAR(60) CHARACTER SET UTF8 DEFAULT '' NOT NULL COLLATE UNICODE,
+	mod_name VARCHAR(255) CHARACTER SET UTF8 DEFAULT '' NOT NULL COLLATE UNICODE
+);;
+
+ALTER TABLE phpbb_mods ADD PRIMARY KEY (mod_id);;
+
+CREATE INDEX phpbb_mods_mod_name_ind ON phpbb_mods(mod_name);;
+CREATE INDEX phpbb_mods_mod_active_ind ON phpbb_mods(mod_active);;
+
+CREATE GENERATOR phpbb_mods_gen;;
+SET GENERATOR phpbb_mods_gen TO 0;;
+
+CREATE TRIGGER t_phpbb_mods FOR phpbb_mods
+BEFORE INSERT
+AS
+BEGIN
+	NEW.mod_id = GEN_ID(phpbb_mods_gen, 1);
+END;;
+
+
+# Table: 'phpbb_mods_plugins'
+CREATE TABLE phpbb_mods_plugins (
+	mod_id INTEGER NOT NULL,
+	plugin_type INTEGER DEFAULT 1 NOT NULL,
+	plugin_name VARCHAR(255) CHARACTER SET UTF8 DEFAULT '' NOT NULL COLLATE UNICODE
+);;
+
+CREATE INDEX phpbb_mods_plugins_mod_id_index ON phpbb_mods_plugins(mod_id);;
+CREATE INDEX phpbb_mods_plugins_mod_plugin_type ON phpbb_mods_plugins(plugin_type);;
+
+CREATE GENERATOR phpbb_mods_plugins_gen;;
+SET GENERATOR phpbb_mods_plugins_gen TO 0;;
+
+CREATE TRIGGER t_phpbb_mods_plugins FOR phpbb_mods_plugins
+BEFORE INSERT
+AS
+BEGIN
+	NEW.mod_id = GEN_ID(phpbb_mods_plugins_gen, 1);
+END;;
+
 
 # Table: 'phpbb_modules'
 CREATE TABLE phpbb_modules (

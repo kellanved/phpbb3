@@ -1,5 +1,5 @@
 #
-# $Id$
+# $Id: $
 #
 
 # Table: 'phpbb_attachments'
@@ -322,6 +322,25 @@ CREATE TABLE phpbb_groups (
 ) CHARACTER SET `utf8` COLLATE `utf8_bin`;
 
 
+# Table: 'phpbb_hooks'
+CREATE TABLE phpbb_hooks (
+	hook_id mediumint(8) UNSIGNED NOT NULL auto_increment,
+	hook_name varchar(120) DEFAULT '' NOT NULL,
+	PRIMARY KEY (hook_id),
+	KEY hook_index (hook_name)
+) CHARACTER SET `utf8` COLLATE `utf8_bin`;
+
+
+# Table: 'phpbb_hooks_mods'
+CREATE TABLE phpbb_hooks_mods (
+	hook_id mediumint(8) UNSIGNED NOT NULL,
+	mod_id mediumint(8) UNSIGNED NOT NULL,
+	priority mediumint(8) UNSIGNED NOT NULL,
+	PRIMARY KEY (hook_id, mod_id),
+	KEY lookup (hook_id, priority)
+) CHARACTER SET `utf8` COLLATE `utf8_bin`;
+
+
 # Table: 'phpbb_icons'
 CREATE TABLE phpbb_icons (
 	icons_id mediumint(8) UNSIGNED NOT NULL auto_increment,
@@ -379,6 +398,29 @@ CREATE TABLE phpbb_moderator_cache (
 	display_on_index tinyint(1) UNSIGNED DEFAULT '1' NOT NULL,
 	KEY disp_idx (display_on_index),
 	KEY forum_id (forum_id)
+) CHARACTER SET `utf8` COLLATE `utf8_bin`;
+
+
+# Table: 'phpbb_mods'
+CREATE TABLE phpbb_mods (
+	mod_id mediumint(8) UNSIGNED NOT NULL auto_increment,
+	mod_active tinyint(1) UNSIGNED DEFAULT '1' NOT NULL,
+	mod_author varchar(255) DEFAULT '' NOT NULL,
+	mod_version varchar(60) DEFAULT '' NOT NULL,
+	mod_name varchar(255) DEFAULT '' NOT NULL,
+	PRIMARY KEY (mod_id),
+	KEY mod_name_ind (mod_name),
+	KEY mod_active_ind (mod_active)
+) CHARACTER SET `utf8` COLLATE `utf8_bin`;
+
+
+# Table: 'phpbb_mods_plugins'
+CREATE TABLE phpbb_mods_plugins (
+	mod_id mediumint(8) UNSIGNED NOT NULL auto_increment,
+	plugin_type tinyint(1) UNSIGNED DEFAULT '1' NOT NULL,
+	plugin_name varchar(255) DEFAULT '' NOT NULL,
+	KEY mod_id_index (mod_id),
+	KEY mod_plugin_type (plugin_type)
 ) CHARACTER SET `utf8` COLLATE `utf8_bin`;
 
 

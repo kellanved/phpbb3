@@ -1,6 +1,6 @@
 /*
 
- $Id$
+ $Id: $
 
 */
 
@@ -562,6 +562,48 @@ GO
 
 
 /*
+	Table: 'phpbb_hooks'
+*/
+CREATE TABLE [phpbb_hooks] (
+	[hook_id] [int] IDENTITY (1, 1) NOT NULL ,
+	[hook_name] [varchar] (120) DEFAULT ('') NOT NULL 
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [phpbb_hooks] WITH NOCHECK ADD 
+	CONSTRAINT [PK_phpbb_hooks] PRIMARY KEY  CLUSTERED 
+	(
+		[hook_id]
+	)  ON [PRIMARY] 
+GO
+
+CREATE  INDEX [hook_index] ON [phpbb_hooks]([hook_name]) ON [PRIMARY]
+GO
+
+
+/*
+	Table: 'phpbb_hooks_mods'
+*/
+CREATE TABLE [phpbb_hooks_mods] (
+	[hook_id] [int] NOT NULL ,
+	[mod_id] [int] NOT NULL ,
+	[priority] [int] NOT NULL 
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [phpbb_hooks_mods] WITH NOCHECK ADD 
+	CONSTRAINT [PK_phpbb_hooks_mods] PRIMARY KEY  CLUSTERED 
+	(
+		[hook_id],
+		[mod_id]
+	)  ON [PRIMARY] 
+GO
+
+CREATE  INDEX [lookup] ON [phpbb_hooks_mods]([hook_id], [priority]) ON [PRIMARY]
+GO
+
+
+/*
 	Table: 'phpbb_icons'
 */
 CREATE TABLE [phpbb_icons] (
@@ -666,6 +708,49 @@ CREATE  INDEX [disp_idx] ON [phpbb_moderator_cache]([display_on_index]) ON [PRIM
 GO
 
 CREATE  INDEX [forum_id] ON [phpbb_moderator_cache]([forum_id]) ON [PRIMARY]
+GO
+
+
+/*
+	Table: 'phpbb_mods'
+*/
+CREATE TABLE [phpbb_mods] (
+	[mod_id] [int] IDENTITY (1, 1) NOT NULL ,
+	[mod_active] [int] DEFAULT (1) NOT NULL ,
+	[mod_author] [varchar] (255) DEFAULT ('') NOT NULL ,
+	[mod_version] [varchar] (60) DEFAULT ('') NOT NULL ,
+	[mod_name] [varchar] (255) DEFAULT ('') NOT NULL 
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [phpbb_mods] WITH NOCHECK ADD 
+	CONSTRAINT [PK_phpbb_mods] PRIMARY KEY  CLUSTERED 
+	(
+		[mod_id]
+	)  ON [PRIMARY] 
+GO
+
+CREATE  INDEX [mod_name_ind] ON [phpbb_mods]([mod_name]) ON [PRIMARY]
+GO
+
+CREATE  INDEX [mod_active_ind] ON [phpbb_mods]([mod_active]) ON [PRIMARY]
+GO
+
+
+/*
+	Table: 'phpbb_mods_plugins'
+*/
+CREATE TABLE [phpbb_mods_plugins] (
+	[mod_id] [int] IDENTITY (1, 1) NOT NULL ,
+	[plugin_type] [int] DEFAULT (1) NOT NULL ,
+	[plugin_name] [varchar] (255) DEFAULT ('') NOT NULL 
+) ON [PRIMARY]
+GO
+
+CREATE  INDEX [mod_id_index] ON [phpbb_mods_plugins]([mod_id]) ON [PRIMARY]
+GO
+
+CREATE  INDEX [mod_plugin_type] ON [phpbb_mods_plugins]([plugin_type]) ON [PRIMARY]
 GO
 
 
@@ -1729,4 +1814,5 @@ ALTER TABLE [phpbb_zebra] WITH NOCHECK ADD
 		[zebra_id]
 	)  ON [PRIMARY] 
 GO
+
 

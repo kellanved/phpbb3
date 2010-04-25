@@ -229,4 +229,11 @@ foreach ($cache->obtain_hooks() as $hook)
 	@include($phpbb_root_path . 'includes/hooks/' . $hook . '.' . $phpEx);
 }
 
+require($phpbb_root_path . 'includes/hooks.' . $phpEx);
+$hook_handler = new phpBB_hook_controller();
+
+// DEMO hook, argument-less as of now.
+$hook_handler->invoke_hook('start', array());
+
+
 ?>

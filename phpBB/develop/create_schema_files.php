@@ -1154,6 +1154,30 @@ function get_schema_struct()
 		),
 	);
 
+	$schema_data['phpbb_hooks'] = array(
+		'COLUMNS'		=> array(
+			'hook_id'				=> array('UINT', NULL, 'auto_increment'),
+			'hook_name'				=> array('VCHAR:120', ''),
+		),
+		'PRIMARY_KEY'	=> 'hook_id',
+		'KEYS'			=> array(
+			'hook_index'	=> array('INDEX', 'hook_name'),
+		),
+	);
+	
+	$schema_data['phpbb_hooks_mods'] = array(
+		'COLUMNS'		=> array(
+			'hook_id'				=> array('UINT', NULL),
+			'mod_id'				=> array('UINT', NULL),
+			'priority'				=> array('UINT', NULL),
+		),
+		'PRIMARY_KEY'		=> array('hook_id', 'mod_id'),
+		'KEYS'				=> array(
+			'lookup'		=> array('INDEX', array('hook_id', 'priority')),
+		),
+	);
+	
+	
 	$schema_data['phpbb_icons'] = array(
 		'COLUMNS'		=> array(
 			'icons_id'				=> array('UINT', NULL, 'auto_increment'),
@@ -1222,6 +1246,34 @@ function get_schema_struct()
 		),
 	);
 
+	
+	$schema_data['phpbb_mods'] = array(
+		'COLUMNS'		=> array(
+			'mod_id'				=> array('UINT', NULL, 'auto_increment'),
+			'mod_active'			=> array('BOOL', 1),
+			'mod_author'			=> array('VCHAR_UNI:255', ''),
+			'mod_version'			=> array('VCHAR_UNI:60', ''),
+			'mod_name'				=> array('VCHAR_UNI:255', ''),
+		),
+		'PRIMARY_KEY'	=> 'mod_id',
+		'KEYS'			=> array(
+			'mod_name_ind'		=> array('INDEX', 'mod_name'),
+			'mod_active_ind'		=> array('INDEX', 'mod_active'),
+		),
+	);
+	
+	$schema_data['phpbb_mods_plugins'] = array(
+		'COLUMNS'		=> array(
+			'mod_id'				=> array('UINT', NULL, 'auto_increment'),
+			'plugin_type'			=> array('BOOL', 1),
+			'plugin_name'			=> array('VCHAR_UNI:255', ''),
+		),
+		'KEYS'			=> array(
+			'mod_id_index'				=> array('INDEX', 'mod_id'),
+			'mod_plugin_type'			=> array('INDEX', 'plugin_type'),
+		),
+	);
+	
 	$schema_data['phpbb_modules'] = array(
 		'COLUMNS'		=> array(
 			'module_id'				=> array('UINT', NULL, 'auto_increment'),

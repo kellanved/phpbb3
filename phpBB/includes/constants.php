@@ -200,6 +200,9 @@ define('CAPTCHA_MAX_CHARS', 7);
 // Additional constants
 define('VOTE_CONVERTED', 127);
 
+// hooks
+define('DEFAULT_PRIORITY', 10000);
+
 // Table names
 define('ACL_GROUPS_TABLE',			$table_prefix . 'acl_groups');
 define('ACL_OPTIONS_TABLE',			$table_prefix . 'acl_options');
@@ -222,10 +225,13 @@ define('FORUMS_ACCESS_TABLE',		$table_prefix . 'forums_access');
 define('FORUMS_TRACK_TABLE',		$table_prefix . 'forums_track');
 define('FORUMS_WATCH_TABLE',		$table_prefix . 'forums_watch');
 define('GROUPS_TABLE',				$table_prefix . 'groups');
+define('HOOK_TABLE',				$table_prefix . 'hooks');
+define('HOOK_MOD_TABLE',			$table_prefix . 'hooks_mods');
 define('ICONS_TABLE',				$table_prefix . 'icons');
 define('LANG_TABLE',				$table_prefix . 'lang');
 define('LOG_TABLE',					$table_prefix . 'log');
 define('MODERATOR_CACHE_TABLE',		$table_prefix . 'moderator_cache');
+define('MOD_TABLE',					$table_prefix . 'mods');
 define('MODULES_TABLE',				$table_prefix . 'modules');
 define('POLL_OPTIONS_TABLE',		$table_prefix . 'poll_options');
 define('POLL_VOTES_TABLE',			$table_prefix . 'poll_votes');

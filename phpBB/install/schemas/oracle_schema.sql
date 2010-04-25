@@ -1,6 +1,6 @@
 /*
 
- $Id$
+ $Id: $
 
 */
 
@@ -630,6 +630,49 @@ END;
 
 
 /*
+	Table: 'phpbb_hooks'
+*/
+CREATE TABLE phpbb_hooks (
+	hook_id number(8) NOT NULL,
+	hook_name varchar2(120) DEFAULT '' ,
+	CONSTRAINT pk_phpbb_hooks PRIMARY KEY (hook_id)
+)
+/
+
+CREATE INDEX phpbb_hooks_hook_index ON phpbb_hooks (hook_name)
+/
+
+CREATE SEQUENCE phpbb_hooks_seq
+/
+
+CREATE OR REPLACE TRIGGER t_phpbb_hooks
+BEFORE INSERT ON phpbb_hooks
+FOR EACH ROW WHEN (
+	new.hook_id IS NULL OR new.hook_id = 0
+)
+BEGIN
+	SELECT phpbb_hooks_seq.nextval
+	INTO :new.hook_id
+	FROM dual;
+END;
+/
+
+
+/*
+	Table: 'phpbb_hooks_mods'
+*/
+CREATE TABLE phpbb_hooks_mods (
+	hook_id number(8) NOT NULL,
+	mod_id number(8) NOT NULL,
+	priority number(8) NOT NULL,
+	CONSTRAINT pk_phpbb_hooks_mods PRIMARY KEY (hook_id, mod_id)
+)
+/
+
+CREATE INDEX phpbb_hooks_mods_lookup ON phpbb_hooks_mods (hook_id, priority)
+/
+
+/*
 	Table: 'phpbb_icons'
 */
 CREATE TABLE phpbb_icons (
@@ -757,6 +800,71 @@ CREATE INDEX phpbb_moderator_cache_disp_idx ON phpbb_moderator_cache (display_on
 /
 CREATE INDEX phpbb_moderator_cache_forum_id ON phpbb_moderator_cache (forum_id)
 /
+
+/*
+	Table: 'phpbb_mods'
+*/
+CREATE TABLE phpbb_mods (
+	mod_id number(8) NOT NULL,
+	mod_active number(1) DEFAULT '1' NOT NULL,
+	mod_author varchar2(765) DEFAULT '' ,
+	mod_version varchar2(180) DEFAULT '' ,
+	mod_name varchar2(765) DEFAULT '' ,
+	CONSTRAINT pk_phpbb_mods PRIMARY KEY (mod_id)
+)
+/
+
+CREATE INDEX phpbb_mods_mod_name_ind ON phpbb_mods (mod_name)
+/
+CREATE INDEX phpbb_mods_mod_active_ind ON phpbb_mods (mod_active)
+/
+
+CREATE SEQUENCE phpbb_mods_seq
+/
+
+CREATE OR REPLACE TRIGGER t_phpbb_mods
+BEFORE INSERT ON phpbb_mods
+FOR EACH ROW WHEN (
+	new.mod_id IS NULL OR new.mod_id = 0
+)
+BEGIN
+	SELECT phpbb_mods_seq.nextval
+	INTO :new.mod_id
+	FROM dual;
+END;
+/
+
+
+/*
+	Table: 'phpbb_mods_plugins'
+*/
+CREATE TABLE phpbb_mods_plugins (
+	mod_id number(8) NOT NULL,
+	plugin_type number(1) DEFAULT '1' NOT NULL,
+	plugin_name varchar2(765) DEFAULT '' 
+)
+/
+
+CREATE INDEX phpbb_mods_plugins_mod_id_index ON phpbb_mods_plugins (mod_id)
+/
+CREATE INDEX phpbb_mods_plugins_mod_plugin_type ON phpbb_mods_plugins (plugin_type)
+/
+
+CREATE SEQUENCE phpbb_mods_plugins_seq
+/
+
+CREATE OR REPLACE TRIGGER t_phpbb_mods_plugins
+BEFORE INSERT ON phpbb_mods_plugins
+FOR EACH ROW WHEN (
+	new.mod_id IS NULL OR new.mod_id = 0
+)
+BEGIN
+	SELECT phpbb_mods_plugins_seq.nextval
+	INTO :new.mod_id
+	FROM dual;
+END;
+/
+
 
 /*
 	Table: 'phpbb_modules'

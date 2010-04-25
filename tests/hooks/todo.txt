@@ -1,0 +1,5 @@
+Tests to add:
+-invoke a hook
+-install a MOD
+-(de-)activate a MOD
+...

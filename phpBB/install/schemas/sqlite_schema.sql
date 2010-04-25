@@ -1,5 +1,5 @@
 #
-# $Id$
+# $Id: $
 #
 
 BEGIN TRANSACTION;
@@ -313,6 +313,24 @@ CREATE TABLE phpbb_groups (
 
 CREATE INDEX phpbb_groups_group_legend_name ON phpbb_groups (group_legend, group_name);
 
+# Table: 'phpbb_hooks'
+CREATE TABLE phpbb_hooks (
+	hook_id INTEGER PRIMARY KEY NOT NULL ,
+	hook_name varchar(120) NOT NULL DEFAULT ''
+);
+
+CREATE INDEX phpbb_hooks_hook_index ON phpbb_hooks (hook_name);
+
+# Table: 'phpbb_hooks_mods'
+CREATE TABLE phpbb_hooks_mods (
+	hook_id INTEGER UNSIGNED NOT NULL ,
+	mod_id INTEGER UNSIGNED NOT NULL ,
+	priority INTEGER UNSIGNED NOT NULL ,
+	PRIMARY KEY (hook_id, mod_id)
+);
+
+CREATE INDEX phpbb_hooks_mods_lookup ON phpbb_hooks_mods (hook_id, priority);
+
 # Table: 'phpbb_icons'
 CREATE TABLE phpbb_icons (
 	icons_id INTEGER PRIMARY KEY NOT NULL ,
@@ -369,6 +387,28 @@ CREATE TABLE phpbb_moderator_cache (
 
 CREATE INDEX phpbb_moderator_cache_disp_idx ON phpbb_moderator_cache (display_on_index);
 CREATE INDEX phpbb_moderator_cache_forum_id ON phpbb_moderator_cache (forum_id);
+
+# Table: 'phpbb_mods'
+CREATE TABLE phpbb_mods (
+	mod_id INTEGER PRIMARY KEY NOT NULL ,
+	mod_active INTEGER UNSIGNED NOT NULL DEFAULT '1',
+	mod_author varchar(255) NOT NULL DEFAULT '',
+	mod_version varchar(60) NOT NULL DEFAULT '',
+	mod_name varchar(255) NOT NULL DEFAULT ''
+);
+
+CREATE INDEX phpbb_mods_mod_name_ind ON phpbb_mods (mod_name);
+CREATE INDEX phpbb_mods_mod_active_ind ON phpbb_mods (mod_active);
+
+# Table: 'phpbb_mods_plugins'
+CREATE TABLE phpbb_mods_plugins (
+	mod_id INTEGER PRIMARY KEY NOT NULL ,
+	plugin_type INTEGER UNSIGNED NOT NULL DEFAULT '1',
+	plugin_name varchar(255) NOT NULL DEFAULT ''
+);
+
+CREATE INDEX phpbb_mods_plugins_mod_id_index ON phpbb_mods_plugins (mod_id);
+CREATE INDEX phpbb_mods_plugins_mod_plugin_type ON phpbb_mods_plugins (plugin_type);
 
 # Table: 'phpbb_modules'
 CREATE TABLE phpbb_modules (

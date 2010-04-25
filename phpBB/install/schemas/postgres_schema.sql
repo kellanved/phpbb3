@@ -1,6 +1,6 @@
 /*
 
- $Id$
+ $Id: $
 
 */
 
@@ -466,6 +466,31 @@ CREATE TABLE phpbb_groups (
 CREATE INDEX phpbb_groups_group_legend_name ON phpbb_groups (group_legend, group_name);
 
 /*
+	Table: 'phpbb_hooks'
+*/
+CREATE SEQUENCE phpbb_hooks_seq;
+
+CREATE TABLE phpbb_hooks (
+	hook_id INT4 DEFAULT nextval('phpbb_hooks_seq'),
+	hook_name varchar(120) DEFAULT '' NOT NULL,
+	PRIMARY KEY (hook_id)
+);
+
+CREATE INDEX phpbb_hooks_hook_index ON phpbb_hooks (hook_name);
+
+/*
+	Table: 'phpbb_hooks_mods'
+*/
+CREATE TABLE phpbb_hooks_mods (
+	hook_id INT4 NOT NULL CHECK (hook_id >= 0),
+	mod_id INT4 NOT NULL CHECK (mod_id >= 0),
+	priority INT4 NOT NULL CHECK (priority >= 0),
+	PRIMARY KEY (hook_id, mod_id)
+);
+
+CREATE INDEX phpbb_hooks_mods_lookup ON phpbb_hooks_mods (hook_id, priority);
+
+/*
 	Table: 'phpbb_icons'
 */
 CREATE SEQUENCE phpbb_icons_seq;
@@ -538,6 +563,37 @@ CREATE TABLE phpbb_moderator_cache (
 
 CREATE INDEX phpbb_moderator_cache_disp_idx ON phpbb_moderator_cache (display_on_index);
 CREATE INDEX phpbb_moderator_cache_forum_id ON phpbb_moderator_cache (forum_id);
+
+/*
+	Table: 'phpbb_mods'
+*/
+CREATE SEQUENCE phpbb_mods_seq;
+
+CREATE TABLE phpbb_mods (
+	mod_id INT4 DEFAULT nextval('phpbb_mods_seq'),
+	mod_active INT2 DEFAULT '1' NOT NULL CHECK (mod_active >= 0),
+	mod_author varchar(255) DEFAULT '' NOT NULL,
+	mod_version varchar(60) DEFAULT '' NOT NULL,
+	mod_name varchar(255) DEFAULT '' NOT NULL,
+	PRIMARY KEY (mod_id)
+);
+
+CREATE INDEX phpbb_mods_mod_name_ind ON phpbb_mods (mod_name);
+CREATE INDEX phpbb_mods_mod_active_ind ON phpbb_mods (mod_active);
+
+/*
+	Table: 'phpbb_mods_plugins'
+*/
+CREATE SEQUENCE phpbb_mods_plugins_seq;
+
+CREATE TABLE phpbb_mods_plugins (
+	mod_id INT4 DEFAULT nextval('phpbb_mods_plugins_seq'),
+	plugin_type INT2 DEFAULT '1' NOT NULL CHECK (plugin_type >= 0),
+	plugin_name varchar(255) DEFAULT '' NOT NULL
+);
+
+CREATE INDEX phpbb_mods_plugins_mod_id_index ON phpbb_mods_plugins (mod_id);
+CREATE INDEX phpbb_mods_plugins_mod_plugin_type ON phpbb_mods_plugins (plugin_type);
 
 /*
 	Table: 'phpbb_modules'
