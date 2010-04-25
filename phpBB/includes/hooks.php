@@ -75,7 +75,7 @@ class phpBB_hook_controller
 				$info = $instance->MOD_info();
 				if (method_exists($instance, "{$name}_$hook"))
 				{
-					$priority = (isset($info['hooks'][$hook])) ?  $info['hooks'][$hook] : DEFAULT_PRIORITY;
+					$priority = (isset($info['hooks'][$hook])) ? $info['hooks'][$hook] : DEFAULT_PRIORITY;
 					$data[] = array('hook_id' => $id, 'mod_id' => $this->mod_ids[$name], 'priority' => $priority);
 				}
 			}
@@ -343,7 +343,7 @@ class phpBB_hook_controller
 		foreach ($mods as $name)
 		{
 			// oh autoloader, where art thou?
-			require($phpBB_root_path . $this->moddir . '/' . $name . $this->class_suffix . ".$phpEx");
+			require($phpBB_root_path . $this->moddir . "/$name/" . $name . $this->class_suffix . ".$phpEx");
 			// seems that using a variable is about twice as fast as using reflections
 			$this->mods[$name] = new $name();
 		}
