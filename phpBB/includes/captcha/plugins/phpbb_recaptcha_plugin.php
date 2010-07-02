@@ -51,7 +51,7 @@ class phpbb_recaptcha extends phpbb_default_captcha
 
 	function &get_instance()
 	{
-		$instance =& new phpbb_recaptcha();
+		$instance = new phpbb_recaptcha();
 		return $instance;
 	}
 

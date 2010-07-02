@@ -101,7 +101,7 @@ class phpbb_captcha_qa
 	*/
 	function &get_instance()
 	{
-		$instance =& new phpbb_captcha_qa();
+		$instance = new phpbb_captcha_qa();
 
 		return $instance;
 	}
