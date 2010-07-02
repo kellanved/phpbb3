@@ -29,7 +29,7 @@ else if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'
 	exit;
 }
 
-if (isset($_GET['avatar']))
+if (isset($_GET['avatar']) && $_GET['avatar'])
 {
 	require($phpbb_root_path . 'config.' . $phpEx);
 
