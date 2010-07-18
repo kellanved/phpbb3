@@ -3039,6 +3039,8 @@ function get_database_size()
 		case 'mssql':
 		case 'mssql_odbc':
 		case 'mssqlnative':
+			// Azure doesn't like sysfiles; we return here.
+			return  $user->lang['NOT_AVAILABLE'];
 			$sql = 'SELECT ((SUM(size) * 8.0) * 1024.0) as dbsize
 				FROM sysfiles';
 			$result = $db->sql_query($sql, 7200);
