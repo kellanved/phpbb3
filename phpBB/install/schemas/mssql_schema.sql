@@ -56,17 +56,14 @@ CREATE TABLE [phpbb_acl_groups] (
 	[forum_id] [int] DEFAULT (0) NOT NULL ,
 	[auth_option_id] [int] DEFAULT (0) NOT NULL ,
 	[auth_role_id] [int] DEFAULT (0) NOT NULL ,
-	[auth_setting] [int] DEFAULT (0) NOT NULL 
+	[auth_setting] [int] DEFAULT (0) NOT NULL ,
+	[mssqlindex] [int] IDENTITY (1, 1) NOT NULL 
 )GO
 
 ALTER TABLE [phpbb_acl_groups] WITH NOCHECK ADD 
 	CONSTRAINT [PK_phpbb_acl_groups] PRIMARY KEY  CLUSTERED 
 	(
-		[group_id],
-		[forum_id],
-		[auth_option_id],
-		[auth_role_id],
-		[auth_setting]
+		[mssqlindex]
 	) 
 GO
 
@@ -156,17 +153,14 @@ CREATE TABLE [phpbb_acl_users] (
 	[forum_id] [int] DEFAULT (0) NOT NULL ,
 	[auth_option_id] [int] DEFAULT (0) NOT NULL ,
 	[auth_role_id] [int] DEFAULT (0) NOT NULL ,
-	[auth_setting] [int] DEFAULT (0) NOT NULL 
+	[auth_setting] [int] DEFAULT (0) NOT NULL ,
+	[mssqlindex] [int] IDENTITY (1, 1) NOT NULL 
 )GO
 
 ALTER TABLE [phpbb_acl_users] WITH NOCHECK ADD 
 	CONSTRAINT [PK_phpbb_acl_users] PRIMARY KEY  CLUSTERED 
 	(
-		[user_id],
-		[forum_id],
-		[auth_option_id],
-		[auth_role_id],
-		[auth_setting]
+		[mssqlindex]
 	) 
 GO
 
@@ -511,14 +505,14 @@ GO
 CREATE TABLE [phpbb_forums_watch] (
 	[forum_id] [int] DEFAULT (0) NOT NULL ,
 	[user_id] [int] DEFAULT (0) NOT NULL ,
-	[notify_status] [int] DEFAULT (0) NOT NULL 
+	[notify_status] [int] DEFAULT (0) NOT NULL ,
+	[mssqlindex] [int] IDENTITY (1, 1) NOT NULL 
 )GO
 
 ALTER TABLE [phpbb_forums_watch] WITH NOCHECK ADD 
 	CONSTRAINT [PK_phpbb_forums_watch] PRIMARY KEY  CLUSTERED 
 	(
-		[forum_id],
-		[user_id]
+		[mssqlindex]
 	) 
 GO
 
@@ -664,15 +658,14 @@ CREATE TABLE [phpbb_moderator_cache] (
 	[username] [varchar] (255) DEFAULT ('') NOT NULL ,
 	[group_id] [int] DEFAULT (0) NOT NULL ,
 	[group_name] [varchar] (255) DEFAULT ('') NOT NULL ,
-	[display_on_index] [int] DEFAULT (1) NOT NULL 
+	[display_on_index] [int] DEFAULT (1) NOT NULL ,
+	[mssqlindex] [int] IDENTITY (1, 1) NOT NULL 
 )GO
 
 ALTER TABLE [phpbb_moderator_cache] WITH NOCHECK ADD 
 	CONSTRAINT [PK_phpbb_moderator_cache] PRIMARY KEY  CLUSTERED 
 	(
-		[forum_id],
-		[user_id],
-		[group_id]
+		[mssqlindex]
 	) 
 GO
 
@@ -724,14 +717,14 @@ CREATE TABLE [phpbb_poll_options] (
 	[poll_option_id] [int] DEFAULT (0) NOT NULL ,
 	[topic_id] [int] DEFAULT (0) NOT NULL ,
 	[poll_option_text] [varchar] (4000) DEFAULT ('') NOT NULL ,
-	[poll_option_total] [int] DEFAULT (0) NOT NULL 
+	[poll_option_total] [int] DEFAULT (0) NOT NULL ,
+	[mssqlindex] [int] IDENTITY (1, 1) NOT NULL 
 )GO
 
 ALTER TABLE [phpbb_poll_options] WITH NOCHECK ADD 
 	CONSTRAINT [PK_phpbb_poll_options] PRIMARY KEY  CLUSTERED 
 	(
-		[topic_id],
-		[poll_option_id]
+		[mssqlindex]
 	) 
 GO
 
@@ -749,15 +742,14 @@ CREATE TABLE [phpbb_poll_votes] (
 	[topic_id] [int] DEFAULT (0) NOT NULL ,
 	[poll_option_id] [int] DEFAULT (0) NOT NULL ,
 	[vote_user_id] [int] DEFAULT (0) NOT NULL ,
-	[vote_user_ip] [varchar] (40) DEFAULT ('') NOT NULL 
+	[vote_user_ip] [varchar] (40) DEFAULT ('') NOT NULL ,
+	[mssqlindex] [int] IDENTITY (1, 1) NOT NULL 
 )GO
 
 ALTER TABLE [phpbb_poll_votes] WITH NOCHECK ADD 
 	CONSTRAINT [PK_phpbb_poll_votes] PRIMARY KEY  CLUSTERED 
 	(
-		[topic_id],
-		[poll_option_id],
-		[vote_user_id]
+		[mssqlindex]
 	) 
 GO
 
@@ -940,15 +932,14 @@ CREATE TABLE [phpbb_privmsgs_to] (
 	[pm_replied] [int] DEFAULT (0) NOT NULL ,
 	[pm_marked] [int] DEFAULT (0) NOT NULL ,
 	[pm_forwarded] [int] DEFAULT (0) NOT NULL ,
-	[folder_id] [int] DEFAULT (0) NOT NULL 
+	[folder_id] [int] DEFAULT (0) NOT NULL ,
+	[mssqlindex] [int] IDENTITY (1, 1) NOT NULL 
 )GO
 
 ALTER TABLE [phpbb_privmsgs_to] WITH NOCHECK ADD 
 	CONSTRAINT [PK_phpbb_privmsgs_to] PRIMARY KEY  CLUSTERED 
 	(
-		[msg_id],
-		[user_id],
-		[author_id]
+		[mssqlindex]
 	) 
 GO
 
@@ -1170,14 +1161,14 @@ GO
 CREATE TABLE [phpbb_search_wordmatch] (
 	[post_id] [int] DEFAULT (0) NOT NULL ,
 	[word_id] [int] DEFAULT (0) NOT NULL ,
-	[title_match] [int] DEFAULT (0) NOT NULL 
+	[title_match] [int] DEFAULT (0) NOT NULL ,
+	[mssqlindex] [int] IDENTITY (1, 1) NOT NULL 
 )GO
 
 ALTER TABLE [phpbb_search_wordmatch] WITH NOCHECK ADD 
 	CONSTRAINT [PK_phpbb_search_wordmatch] PRIMARY KEY  CLUSTERED 
 	(
-		[post_id],
-		[word_id]
+		[mssqlindex]
 	) 
 GO
 
@@ -1358,14 +1349,14 @@ CREATE TABLE [phpbb_styles_template_data] (
 	[template_filename] [varchar] (100) DEFAULT ('') NOT NULL ,
 	[template_included] [varchar] (8000) DEFAULT ('') NOT NULL ,
 	[template_mtime] [int] DEFAULT (0) NOT NULL ,
-	[template_data] [text] DEFAULT ('') NOT NULL 
+	[template_data] [text] DEFAULT ('') NOT NULL ,
+	[mssqlindex] [int] IDENTITY (1, 1) NOT NULL 
 )GO
 
 ALTER TABLE [phpbb_styles_template_data] WITH NOCHECK ADD 
 	CONSTRAINT [PK_phpbb_styles_template_data] PRIMARY KEY  CLUSTERED 
 	(
-		[template_id],
-		[template_filename]
+		[mssqlindex]
 	) 
 GO
 
@@ -1560,14 +1551,14 @@ GO
 CREATE TABLE [phpbb_topics_watch] (
 	[topic_id] [int] DEFAULT (0) NOT NULL ,
 	[user_id] [int] DEFAULT (0) NOT NULL ,
-	[notify_status] [int] DEFAULT (0) NOT NULL 
+	[notify_status] [int] DEFAULT (0) NOT NULL ,
+	[mssqlindex] [int] IDENTITY (1, 1) NOT NULL 
 )GO
 
 ALTER TABLE [phpbb_topics_watch] WITH NOCHECK ADD 
 	CONSTRAINT [PK_phpbb_topics_watch] PRIMARY KEY  CLUSTERED 
 	(
-		[topic_id],
-		[user_id]
+		[mssqlindex]
 	) 
 GO
 
@@ -1588,14 +1579,14 @@ CREATE TABLE [phpbb_user_group] (
 	[group_id] [int] DEFAULT (0) NOT NULL ,
 	[user_id] [int] DEFAULT (0) NOT NULL ,
 	[group_leader] [int] DEFAULT (0) NOT NULL ,
-	[user_pending] [int] DEFAULT (1) NOT NULL 
+	[user_pending] [int] DEFAULT (1) NOT NULL ,
+	[mssqlindex] [int] IDENTITY (1, 1) NOT NULL 
 )GO
 
 ALTER TABLE [phpbb_user_group] WITH NOCHECK ADD 
 	CONSTRAINT [PK_phpbb_user_group] PRIMARY KEY  CLUSTERED 
 	(
-		[group_id],
-		[user_id]
+		[mssqlindex]
 	) 
 GO
 

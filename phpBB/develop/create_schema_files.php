@@ -12,7 +12,7 @@
 * If you overwrite the original schema files please make sure you save the file with UNIX linefeeds.
 */
 
-//die("Please read the first lines of this script for instructions on how to enable it");
+die("Please read the first lines of this script for instructions on how to enable it");
 
 @set_time_limit(0);
 
@@ -23,7 +23,7 @@ if (!is_writable($schema_path))
 	die('Schema path not writable');
 }
 
-$schema_data = get_schema_struct();
+
 $dbms_type_map = array(
 	'mysql_41'	=> array(
 		'INT:'		=> 'int(%d)',
@@ -236,12 +236,26 @@ $dbms_type_map = array(
 	),
 );
 
+
 // A list of types being unsigned for better reference in some db's
 $unsigned_types = array('UINT', 'UINT:', 'USINT', 'BOOL', 'TIMESTAMP');
 $supported_dbms = array('firebird', 'mssql', 'mysql_40', 'mysql_41', 'oracle', 'postgres', 'sqlite');
 
 foreach ($supported_dbms as $dbms)
 {
+	$schema_data = get_schema_struct();
+	if ($dbms == 'mssql')
+	{
+		foreach ($schema_data as $table_name => $table_data)
+		{
+			if (!isset($table_data['PRIMARY_KEY']))
+			{
+				$schema_data[$table_name]['COLUMNS']['mssqlindex'] = array('UINT', NULL, 'auto_increment');
+				$schema_data[$table_name]['PRIMARY_KEY'] = 'mssqlindex';
+			}
+		}
+	}
+
 	$fp = fopen($schema_path . '_' . $dbms . '_schema.sql', 'wt');
 
 	$line = '';
@@ -799,8 +813,7 @@ foreach ($supported_dbms as $dbms)
 *	PDECIMAL:	=> precision decimal number (x,3)
 *	VCHAR_UNI	=> varchar(255) BINARY
 *	VCHAR_CI	=> varchar_ci for postgresql, others VCHAR
-*/
-function get_schema_struct()
+*/function get_schema_struct()
 {
 	$schema_data = array();
 
@@ -843,9 +856,8 @@ function get_schema_struct()
 		'KEYS'			=> array(
 			'group_id'		=> array('INDEX', 'group_id'),
 			'auth_opt_id'	=> array('INDEX', 'auth_option_id'),
-			'auth_role_id'	=> array('INDEX', 'auth_role_id', 'auth_option_id'),
+			'auth_role_id'	=> array('INDEX', 'auth_role_id'),
 		),
-		'PRIMARY_KEY'	=> array('group_id', 'forum_id', 'auth_option_id', 'auth_role_id', 'auth_setting'),
 	);
 
 	$schema_data['phpbb_acl_options'] = array(
@@ -902,7 +914,6 @@ function get_schema_struct()
 			'auth_option_id'	=> array('INDEX', 'auth_option_id'),
 			'auth_role_id'		=> array('INDEX', 'auth_role_id'),
 		),
-		'PRIMARY_KEY'	=> array('user_id', 'forum_id', 'auth_option_id', 'auth_role_id', 'auth_setting'),
 	);
 
 	$schema_data['phpbb_banlist'] = array(
@@ -1124,7 +1135,6 @@ function get_schema_struct()
 			'user_id'				=> array('INDEX', 'user_id'),
 			'notify_stat'			=> array('INDEX', 'notify_status'),
 		),
-		'PRIMARY_KEY'	=> array('forum_id', 'user_id'),
 	);
 
 	$schema_data['phpbb_groups'] = array(
@@ -1223,8 +1233,6 @@ function get_schema_struct()
 			'disp_idx'				=> array('INDEX', 'display_on_index'),
 			'forum_id'				=> array('INDEX', 'forum_id'),
 		),
-		'PRIMARY_KEY'	=> array('forum_id', 'user_id', 'group_id'),
-		
 	);
 
 	$schema_data['phpbb_modules'] = array(
@@ -1260,7 +1268,6 @@ function get_schema_struct()
 			'poll_opt_id'			=> array('INDEX', 'poll_option_id'),
 			'topic_id'				=> array('INDEX', 'topic_id'),
 		),
-		'PRIMARY_KEY'	=> array('topic_id', 'poll_option_id'),
 	);
 
 	$schema_data['phpbb_poll_votes'] = array(
@@ -1275,7 +1282,6 @@ function get_schema_struct()
 			'vote_user_id'			=> array('INDEX', 'vote_user_id'),
 			'vote_user_ip'			=> array('INDEX', 'vote_user_ip'),
 		),
-		'PRIMARY_KEY'	=> array('topic_id', 'poll_option_id', 'vote_user_id'),
 	);
 
 	$schema_data['phpbb_posts'] = array(
@@ -1402,7 +1408,6 @@ function get_schema_struct()
 			'author_id'				=> array('INDEX', 'author_id'),
 			'usr_flder_id'			=> array('INDEX', array('user_id', 'folder_id')),
 		),
-'PRIMARY_KEY'	=> array('msg_id', 'user_id', 'author_id'),
 	);
 
 	$schema_data['phpbb_profile_fields'] = array(
@@ -1537,7 +1542,6 @@ function get_schema_struct()
 			'word_id'			=> array('INDEX', 'word_id'),
 			'post_id'			=> array('INDEX', 'post_id'),
 		),
-	'PRIMARY_KEY'	=> array('post_id', 'word_id'),
 	);
 
 	$schema_data['phpbb_sessions'] = array(
@@ -1653,7 +1657,6 @@ function get_schema_struct()
 			'tid'					=> array('INDEX', 'template_id'),
 			'tfn'					=> array('INDEX', 'template_filename'),
 		),
-		'PRIMARY_KEY'	=> array('template_id', 'template_filename'),
 	);
 
 	$schema_data['phpbb_styles_theme'] = array(
@@ -1783,7 +1786,6 @@ function get_schema_struct()
 			'user_id'			=> array('INDEX', 'user_id'),
 			'notify_stat'		=> array('INDEX', 'notify_status'),
 		),
-		'PRIMARY_KEY'	=> array('topic_id', 'user_id'),
 	);
 
 	$schema_data['phpbb_user_group'] = array(
@@ -1798,7 +1800,6 @@ function get_schema_struct()
 			'user_id'			=> array('INDEX', 'user_id'),
 			'group_leader'		=> array('INDEX', 'group_leader'),
 		),
-		'PRIMARY_KEY'	=> array('group_id', 'user_id'),
 	);
 
 	$schema_data['phpbb_users'] = array(
@@ -1921,6 +1922,7 @@ function get_schema_struct()
 
 	return $schema_data;
 }
+
 
 
 /**
