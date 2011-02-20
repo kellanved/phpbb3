@@ -63,10 +63,19 @@ class dbal_firebird extends dbal
 	/**
 	* Version information about used database
 	* @param bool $raw if true, only return the fetched sql_server_version
+	* @param bool $use_cache forced to false for Interbase
 	* @return string sql server version
 	*/
-	function sql_server_info($raw = false)
+	function sql_server_info($raw = false, $use_cache = true)
 	{
+		/**
+		* force $use_cache false.  I didn't research why the caching code there is no caching code
+		* but I assume its because the IB extension provides a direct method to access it
+		* without a query.
+		*/
+
+		$use_cache = false;
+
 		if ($this->service_handle !== false && function_exists('ibase_server_info'))
 		{
 			return @ibase_server_info($this->service_handle, IBASE_SVC_SERVER_VERSION);
@@ -457,6 +466,22 @@ class dbal_firebird extends dbal
 	}
 
 	/**
+	* @inheritdoc
+	*/
+	function cast_expr_to_bigint($expression)
+	{
+		return 'CAST(' . $expression . ' as DECIMAL(255, 0))';
+	}
+
+	/**
+	* @inheritdoc
+	*/
+	function cast_expr_to_string($expression)
+	{
+		return 'CAST(' . $expression . ' as VARCHAR(255))';
+	}
+
+	/**
 	* return sql error array
 	* @access private
 	*/
@@ -513,5 +538,3 @@ class dbal_firebird extends dbal
 		}
 	}
 }
-
-?>

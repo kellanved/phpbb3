@@ -45,14 +45,8 @@ if (!empty($load_extensions) && function_exists('dl'))
 	}
 }
 
-
-$sid = (isset($_GET['sid']) && !is_array($_GET['sid'])) ? htmlspecialchars($_GET['sid']) : '';
+// no $request here because it is not loaded yet
 $id = (isset($_GET['id'])) ? intval($_GET['id']) : 0;
-
-if (strspn($sid, 'abcdefABCDEF0123456789') !== strlen($sid))
-{
-	$sid = '';
-}
 
 // This is a simple script to grab and output the requested CSS data stored in the DB
 // We include a session_id check to try and limit 3rd party linking ... unless they
@@ -62,14 +56,24 @@ if (strspn($sid, 'abcdefABCDEF0123456789') !== strlen($sid))
 if ($id)
 {
 	// Include files
-	require($phpbb_root_path . 'includes/acm/acm_' . $acm_type . '.' . $phpEx);
-	require($phpbb_root_path . 'includes/cache.' . $phpEx);
+	require($phpbb_root_path . 'includes/class_loader.' . $phpEx);
 	require($phpbb_root_path . 'includes/db/' . $dbms . '.' . $phpEx);
 	require($phpbb_root_path . 'includes/constants.' . $phpEx);
 	require($phpbb_root_path . 'includes/functions.' . $phpEx);
 
+	$class_loader = new phpbb_class_loader($phpbb_root_path, '.' . $phpEx);
+	$class_loader->register();
+
+	// set up caching
+	$cache_factory = new phpbb_cache_factory($acm_type);
+	$cache = $cache_factory->get_service();
+	$class_loader->set_cache($cache->get_driver());
+
+	$request = new phpbb_request();
 	$db = new $sql_db();
-	$cache = new cache();
+
+	// make sure request_var uses this request instance
+	request_var('', 0, false, false, $request); // "dependency injection" for a function
 
 	// Connect to DB
 	if (!@$db->sql_connect($dbhost, $dbuser, $dbpasswd, $dbname, $dbport, false, false))
@@ -78,8 +82,25 @@ if ($id)
 	}
 	unset($dbpasswd);
 
-	$config = $cache->obtain_config();
+	$config = new phpbb_config_db($db, $cache->get_driver(), CONFIG_TABLE);
+	set_config(null, null, null, $config);
+	set_config_count(null, null, null, $config);
+
 	$user = false;
+
+	// try to get a session ID from REQUEST array
+	$sid = request_var('sid', '');
+
+	if (!$sid)
+	{
+		// if that failed, then look in the cookies
+		$sid = request_var($config['cookie_name'] . '_sid', '', false, true);
+	}
+
+	if (strspn($sid, 'abcdefABCDEF0123456789') !== strlen($sid))
+	{
+		$sid = '';
+	}
 
 	if ($sid)
 	{
@@ -291,7 +312,3 @@ if ($id)
 	}
 	$db->sql_close();
 }
-
-exit;
-
-?>

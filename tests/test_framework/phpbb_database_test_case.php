@@ -9,160 +9,133 @@
 
 abstract class phpbb_database_test_case extends PHPUnit_Extensions_Database_TestCase
 {
+	static private $already_connected;
+
 	protected $test_case_helpers;
 
-	public function init_test_case_helpers()
+	public function __construct($name = NULL, array $data = array(), $dataName = '')
+	{
+		parent::__construct($name, $data, $dataName);
+		$this->backupStaticAttributesBlacklist += array(
+			'PHP_CodeCoverage' => array('instance'),
+			'PHP_CodeCoverage_Filter' => array('instance'),
+			'PHP_CodeCoverage_Util' => array('ignoredLines', 'templateMethods'),
+			'PHP_Timer' => array('startTimes',),
+			'PHP_Token_Stream' => array('customTokens'),
+			'PHP_Token_Stream_CachingFactory' => array('cache'),
+
+			'phpbb_database_test_case' => array('already_connected'),
+		);
+	}
+
+	public function get_test_case_helpers()
 	{
 		if (!$this->test_case_helpers)
 		{
 			$this->test_case_helpers = new phpbb_test_case_helpers($this);
 		}
+
+		return $this->test_case_helpers;
 	}
 
-	function get_dbms_data($dbms)
+	public function get_database_config()
 	{
-		$available_dbms = array(
-			'firebird'	=> array(
-				'SCHEMA'		=> 'firebird',
-				'DELIM'			=> ';;',
-				'PDO'			=> 'firebird',
-			),
-			'mysqli'	=> array(
-				'SCHEMA'		=> 'mysql_41',
-				'DELIM'			=> ';',
-				'PDO'			=> 'mysql',
-			),
-			'mysql'		=> array(
-				'SCHEMA'		=> 'mysql',
-				'DELIM'			=> ';',
-				'PDO'			=> 'mysql',
-			),
-			'mssql'		=> array(
-				'SCHEMA'		=> 'mssql',
-				'DELIM'			=> 'GO',
-				'PDO'			=> 'odbc',
-			),
-			'mssql_odbc'=>	array(
-				'SCHEMA'		=> 'mssql',
-				'DELIM'			=> 'GO',
-				'PDO'			=> 'odbc',
-			),
-			'mssqlnative'		=> array(
-				'SCHEMA'		=> 'mssql',
-				'DELIM'			=> 'GO',
-				'PDO'			=> 'odbc',
-			),
-			'oracle'	=>	array(
-				'SCHEMA'		=> 'oracle',
-				'DELIM'			=> '/',
-				'PDO'			=> 'oci',
-			),
-			'postgres' => array(
-				'SCHEMA'		=> 'postgres',
-				'DELIM'			=> ';',
-				'PDO'			=> 'pgsql',
-			),
-			'sqlite'		=> array(
-				'SCHEMA'		=> 'sqlite',
-				'DELIM'			=> ';',
-				'PDO'			=> 'sqlite',
-			),
-		);
-
-		if (isset($available_dbms[$dbms]))
+		if (isset($_SERVER['PHPBB_TEST_DBMS']))
 		{
-			return $available_dbms[$dbms];
+			return array(
+				'dbms'		=> isset($_SERVER['PHPBB_TEST_DBMS']) ? $_SERVER['PHPBB_TEST_DBMS'] : '',
+				'dbhost'	=> isset($_SERVER['PHPBB_TEST_DBHOST']) ? $_SERVER['PHPBB_TEST_DBHOST'] : '',
+				'dbport'	=> isset($_SERVER['PHPBB_TEST_DBPORT']) ? $_SERVER['PHPBB_TEST_DBPORT'] : '',
+				'dbname'	=> isset($_SERVER['PHPBB_TEST_DBNAME']) ? $_SERVER['PHPBB_TEST_DBNAME'] : '',
+				'dbuser'	=> isset($_SERVER['PHPBB_TEST_DBUSER']) ? $_SERVER['PHPBB_TEST_DBUSER'] : '',
+				'dbpasswd'	=> isset($_SERVER['PHPBB_TEST_DBPASSWD']) ? $_SERVER['PHPBB_TEST_DBPASSWD'] : '',
+			);
+		}
+		else if (file_exists(dirname(__FILE__) . '/../test_config.php'))
+		{
+			include(dirname(__FILE__) . '/../test_config.php');
+
+			return array(
+				'dbms'		=> $dbms,
+				'dbhost'	=> $dbhost,
+				'dbport'	=> $dbport,
+				'dbname'	=> $dbname,
+				'dbuser'	=> $dbuser,
+				'dbpasswd'	=> $dbpasswd,
+			);
+		}
+		else if (extension_loaded('sqlite') && version_compare(PHPUnit_Runner_Version::id(), '3.4.15', '>='))
+		{
+			// Silently use sqlite
+			return array(
+				'dbms'		=> 'sqlite',
+				'dbhost'	=> dirname(__FILE__) . '/../phpbb_unit_tests.sqlite2', // filename
+				'dbport'	=> '',
+				'dbname'	=> '',
+				'dbuser'	=> '',
+				'dbpasswd'	=> '',
+			);
 		}
 		else
 		{
-			trigger_error('Database unsupported', E_USER_ERROR);
+			$this->markTestSkipped('Missing test_config.php: See first error.');
 		}
-	}
-
-	function split_sql_file($sql, $delimiter)
-	{
-		$sql = str_replace("\r" , '', $sql);
-		$data = preg_split('/' . preg_quote($delimiter, '/') . '$/m', $sql);
-
-		$data = array_map('trim', $data);
-
-		// The empty case
-		$end_data = end($data);
-
-		if (empty($end_data))
-		{
-			unset($data[key($data)]);
-		}
-
-		return $data;
 	}
 
 	public function getConnection()
 	{
-		static $already_connected;
+		$config = $this->get_database_config();
 
-		$this->init_test_case_helpers();
-		$database_config = $this->test_case_helpers->get_database_config();
+		$manager = $this->create_connection_manager($config);
 
-		$dbms_data = $this->get_dbms_data($database_config['dbms']);
-
-		if ($already_connected)
+		if (!self::$already_connected)
 		{
-			$pdo = new PDO($dbms_data['PDO'] . ':host=' . $database_config['dbhost'] . ';dbname=' . $database_config['dbname'], $database_config['dbuser'], $database_config['dbpasswd']);
-		}
-		else
-		{
-			$pdo = new PDO($dbms_data['PDO'] . ':host=' . $database_config['dbhost'] . ';', $database_config['dbuser'], $database_config['dbpasswd']);
-
-			try
-			{
-				$pdo->exec('DROP DATABASE ' . $database_config['dbname']);
-			}
-			catch (PDOException $e){} // ignore non existent db
-
-			$pdo->exec('CREATE DATABASE ' . $database_config['dbname']);
-
-			$pdo = new PDO($dbms_data['PDO'] . ':host=' . $database_config['dbhost'] . ';dbname=' . $database_config['dbname'], $database_config['dbuser'], $database_config['dbpasswd']);
-
-			if ($database_config['dbms'] == 'mysql')
-			{
-				$sth = $pdo->query('SELECT VERSION() AS version');
-				$row = $sth->fetch(PDO::FETCH_ASSOC);
-
-				if (version_compare($row['version'], '4.1.3', '>='))
-				{
-					$dbms_data['SCHEMA'] .= '_41';
-				}
-				else
-				{
-					$dbms_data['SCHEMA'] .= '_40';
-				}
-
-				unset($row, $sth);
-			}
-
-			$sql_query = $this->split_sql_file(file_get_contents("../phpBB/install/schemas/{$dbms_data['SCHEMA']}_schema.sql"), $dbms_data['DELIM']);
-
-			foreach ($sql_query as $sql)
-			{
-				$pdo->exec($sql);
-			}
-
-			$already_connected = true;
+			$manager->recreate_db();
 		}
 
-		return $this->createDefaultDBConnection($pdo, 'testdb');
+		$manager->connect();
+
+		if (!self::$already_connected)
+		{
+			$manager->load_schema();
+			self::$already_connected = true;
+		}
+
+		return $this->createDefaultDBConnection($manager->get_pdo(), 'testdb');
 	}
 
 	public function new_dbal()
 	{
-		$this->init_test_case_helpers();
-		return $this->test_case_helpers->new_dbal();
+		global $phpbb_root_path, $phpEx;
+
+		$config = $this->get_database_config();
+
+		require_once dirname(__FILE__) . '/../../phpBB/includes/db/' . $config['dbms'] . '.php';
+		$dbal = 'dbal_' . $config['dbms'];
+		$db = new $dbal();
+		$db->sql_connect($config['dbhost'], $config['dbuser'], $config['dbpasswd'], $config['dbname'], $config['dbport']);
+
+		return $db;
+	}
+
+	public function assertSqlResultEquals($expected, $sql, $message = '')
+	{
+		$db = $this->new_dbal();
+
+		$result = $db->sql_query($sql);
+		$rows = $db->sql_fetchrowset($result);
+		$db->sql_freeresult($result);
+
+		$this->assertEquals($expected, $rows, $message);
 	}
 
 	public function setExpectedTriggerError($errno, $message = '')
 	{
-		$this->init_test_case_helpers();
-		$this->test_case_helpers->setExpectedTriggerError($errno, $message);
+		$this->get_test_case_helpers()->setExpectedTriggerError($errno, $message);
+	}
+
+	protected function create_connection_manager($config)
+	{
+		return new phpbb_database_test_connection_manager($config);
 	}
 }

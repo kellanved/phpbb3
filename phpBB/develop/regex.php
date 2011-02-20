@@ -18,14 +18,15 @@ $ls32 = "(?:$h16:$h16|$ipv4)";
 
 $ipv6_construct = array(
 	array(false,	'',		'{6}',	$ls32),
-	array(false,	'::',	'{5}',	$ls32),
+	array(false,	'::',	'{0,5}', "(?:$h16(?::$h16)?|$ipv4)"),
 	array('',		':',	'{4}',	$ls32),
 	array('{1,2}',	':',	'{3}',	$ls32),
 	array('{1,3}',	':',	'{2}',	$ls32),
 	array('{1,4}',	':',	'',		$ls32),
 	array('{1,5}',	':',	false,	$ls32),
 	array('{1,6}',	':',	false,	$h16),
-	array('{1,7}',	':',	false,	'')
+	array('{1,7}',	':',	false,	''),
+	array(false, '::', false, '')
 );
 
 $ipv6 = '(?:';
@@ -79,5 +80,3 @@ echo 'www.URL: ' . $www_url . "<br />\n";
 // no schema and no authority
 $relative_url = "$segment$path_abempty(?:\?$query)?(?:\#$fragment)?";
 echo 'relative URL: ' . $relative_url . "<br />\n";
-
-?>
