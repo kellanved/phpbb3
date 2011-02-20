@@ -73,7 +73,7 @@ class phpBB_hook_controller
 			foreach($instances as $name => $instance)
 			{
 				$info = $instance->MOD_info();
-				if (method_exists($instance, "{$name}_$hook"))
+				if (method_exists($instance, $hook))
 				{
 					$priority = (isset($info['hooks'][$hook])) ? $info['hooks'][$hook] : DEFAULT_PRIORITY;
 					$data[] = array('hook_id' => $id, 'mod_id' => $this->mod_ids[$name], 'priority' => $priority);
@@ -198,7 +198,7 @@ class phpBB_hook_controller
 		$return_val = array();
 		foreach ($mods as $mod)
 		{
-			$mod_result = call_user_func(array($this->mods[$mod], $mod . '_' . $name), $args);
+			$mod_result = call_user_func(array($this->mods[$mod], $name), $args);
 			if ($mod_result && is_array($mod_result))
 			{
 				$return_val = array_merge_recursive($result);
@@ -234,7 +234,7 @@ class phpBB_hook_controller
 		
 		$return_val = array();
 
-		$mod_result = call_user_func(array($this->mods[$mod], $mod . '_' . $name), $args);
+		$mod_result = call_user_func(array($this->mods[$mod], $name), $args);
 		if ($mod_result && is_array($mod_result))
 		{
 			$return_val = array_merge_recursive($result);
